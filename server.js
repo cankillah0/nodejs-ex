@@ -65,7 +65,7 @@ app.get('/', function (req, res) {
     initDb(function(err){});
   }
   if (db) {
-    res.end("fuck");
+    res.end("fuckccc");
   } else {
     res.end("fuck");
   }
