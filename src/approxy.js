@@ -21,4 +21,11 @@ Approxy.prototype.getResponse = function(){
     }
 };
 
+Approxy.prototype.signAllowHeaders = function(response){
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,contenttype');
+    response.setHeader('Access-Control-Allow-Credentials', true);
+};
+
 module.exports = Approxy;

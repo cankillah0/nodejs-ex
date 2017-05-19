@@ -72,6 +72,7 @@ app.get('/', function (req, res) {
   } else {
     res.end("fuck");
   }*/
+  proxy.signAllowHeaders(res);
   res.end(proxy.getResponse());
 
 });
