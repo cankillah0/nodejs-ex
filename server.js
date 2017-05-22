@@ -4,15 +4,24 @@ var express = require('express'),
     app     = express(),
     eps     = require('ejs'),
     morgan  = require('morgan'),
-    Approxy   = require('./src/approxy');
+    Approxy = require('./src/approxy'),
+    url     = require('url'),
+    cors    = require('cors'),
+    bodyParser = require('body-parser');
     
-Object.assign=require('object-assign')
+Object.assign = require('object-assign');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
-app.use(morgan('combined'))
+app.use(morgan('combined'));
+app.use(cors({origin: 'http://localhost:63342'}));
+
+
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
+    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
     mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
 
@@ -61,6 +70,14 @@ var initDb = function(callback) {
 
 var proxy = new Approxy();
 
+app.post('/init', function(req, res){
+    signAllowHeaders(res).end(proxy.getInitResponse(req.body));
+});
+
+app.post('/spin', function(req, res){
+    signAllowHeaders(res).end(proxy.getSpinResponse(req.body));
+});
+
 app.get('/', function (req, res) {
   // try to initialize the db on every request if it's not already
   // initialized.
@@ -72,10 +89,16 @@ app.get('/', function (req, res) {
   } else {
     res.end("fuck");
   }*/
-  proxy.signAllowHeaders(res);
-  res.end(proxy.getResponse());
-
+ // var urlParsed = url.parse(req.url);
 });
+
+
+function signAllowHeaders(response){
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Credentials', true);
+    return response;
+};
 
 app.get('/pagecount', function (req, res) {
   // try to initialize the db on every request if it's not already
