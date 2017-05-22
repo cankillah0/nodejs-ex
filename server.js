@@ -6,8 +6,8 @@ var express = require('express'),
     morgan  = require('morgan'),
     Approxy = require('./src/approxy'),
     url     = require('url'),
-    bodyParser = require('body-parser');
-   // cors    = require('cors');
+    bodyParser = require('body-parser'),
+    cors    = require('cors');
 
     
 Object.assign = require('object-assign');
@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
-//app.use(cors({origin: 'http://localhost:63342'}));
+app.use(cors({origin: 'http://localhost:63342'}));
 
 
 
@@ -72,23 +72,23 @@ var initDb = function(callback) {
 var proxy = new Approxy();
 
 app.post('/init', function(req, res){
-    signAllowHeaders(res).end(proxy.getInitResponse());
+    res.end(proxy.getInitResponse());
 });
 
 app.post('/spin', function(req, res){
-    signAllowHeaders(res).end(proxy.getSpinResponse(req.body));
+    res.end(proxy.getSpinResponse(req.body));
 });
 
 app.get('/', function (req, res) {
-    signAllowHeaders(res).end("ok");
+    res.end("ok");
 });
 
 
 function signAllowHeaders(response){
-    response.setHeader('Access-Control-Allow-Origin', '*');
-    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-type');
-    response.setHeader('Access-Control-Allow-Credentials', true);
+    //response.setHeader('Access-Control-Allow-Origin', 'http://localhost:63342');
+    //response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    //response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-type');
+    //response.setHeader('Access-Control-Allow-Credentials', true);
     return response;
 };
 
