@@ -87,9 +87,10 @@ app.get('/', function (req, res) {
   if (db) {
     res.end("fuckccc");
   } else {
-    res.end("fuck");
+
   }*/
- // var urlParsed = url.parse(req.url);
+ // var urlParsed = url.parse(req.url);res.end("fuck");
+    res.end("ok");
 });
 
 
