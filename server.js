@@ -6,7 +6,7 @@ var express = require('express'),
     morgan  = require('morgan'),
     Approxy = require('./src/approxy'),
     url     = require('url'),
-    cors    = require('cors'),
+    //cors    = require('cors'),
     bodyParser = require('body-parser');
     
 Object.assign = require('object-assign');
@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
-app.use(cors({origin: 'http://localhost:63342'}));
+//app.use(cors({origin: 'http://localhost:63342'}));
 
 
 
@@ -79,7 +79,6 @@ app.post('/spin', function(req, res){
 });
 
 app.get('/', function (req, res) {
-
     signAllowHeaders(res).end("ok");
 });
 
@@ -87,6 +86,7 @@ app.get('/', function (req, res) {
 function signAllowHeaders(response){
     response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,contenttype');
     response.setHeader('Access-Control-Allow-Credentials', true);
     return response;
 };
