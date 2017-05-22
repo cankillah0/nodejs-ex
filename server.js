@@ -7,7 +7,7 @@ var express = require('express'),
     Approxy = require('./src/approxy'),
     url     = require('url'),
     bodyParser = require('body-parser');
-    //cors    = require('cors'),
+   // cors    = require('cors');
 
     
 Object.assign = require('object-assign');
@@ -87,7 +87,8 @@ app.get('/', function (req, res) {
 function signAllowHeaders(response){
     response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,contenttype');
+    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-type');
+    response.setHeader('Content-type', 'application/json');
     response.setHeader('Access-Control-Allow-Credentials', true);
     return response;
 };
