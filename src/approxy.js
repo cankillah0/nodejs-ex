@@ -10,7 +10,7 @@ Approxy.WILD_ID = 9;
 
 var Lines = require('./lines');
 
-Approxy.prototype.getInitResponse = function(requestData){
+Approxy.prototype.getInitResponse = function(){
     var combination = this.generateCombination(Approxy.WILD_ID - 1);
     var freezable = this.getFreezableReels(combination, Approxy.WILD_ID);
     var data = {

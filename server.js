@@ -5,14 +5,14 @@ var express = require('express'),
     eps     = require('ejs'),
     morgan  = require('morgan'),
     Approxy = require('./src/approxy'),
-    url     = require('url'),
+    url     = require('url');
     //cors    = require('cors'),
-    bodyParser = require('body-parser');
+    //bodyParser = require('body-parser');
     
 Object.assign = require('object-assign');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended : false}));
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
@@ -71,7 +71,7 @@ var initDb = function(callback) {
 var proxy = new Approxy();
 
 app.post('/init', function(req, res){
-    signAllowHeaders(res).end(proxy.getInitResponse(req.body));
+    signAllowHeaders(res).end(proxy.getInitResponse());
 });
 
 app.post('/spin', function(req, res){
@@ -79,7 +79,7 @@ app.post('/spin', function(req, res){
 });
 
 app.get('/test', function (req, res) {
-    signAllowHeaders(res).end("ok");
+    signAllowHeaders(res).end(proxy.getInitResponse());
 });
 
 app.get('/', function (req, res) {
