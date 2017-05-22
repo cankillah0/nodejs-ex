@@ -78,6 +78,10 @@ app.post('/spin', function(req, res){
     signAllowHeaders(res).end(proxy.getSpinResponse(req.body));
 });
 
+app.get('/test', function (req, res) {
+    signAllowHeaders(res).end("ok");
+});
+
 app.get('/', function (req, res) {
     signAllowHeaders(res).end("ok");
 });
