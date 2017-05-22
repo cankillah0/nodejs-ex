@@ -6,7 +6,7 @@ var express = require('express'),
     morgan  = require('morgan'),
     Approxy = require('./src/approxy'),
     url     = require('url'),
-    cors    = require('cors'),
+    //cors    = require('cors'),
     bodyParser = require('body-parser');
     
 Object.assign = require('object-assign');
@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
-app.use(cors({origin: 'http://localhost:63342'}));
+//app.use(cors({origin: 'http://localhost:63342'}));
 
 
 
