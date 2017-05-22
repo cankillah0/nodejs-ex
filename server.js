@@ -7,12 +7,12 @@ var express = require('express'),
     Approxy = require('./src/approxy'),
     url     = require('url');
     //cors    = require('cors'),
-    //bodyParser = require('body-parser');
+    bodyParser = require('body-parser');
     
 Object.assign = require('object-assign');
 
-//app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({extended : false}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
