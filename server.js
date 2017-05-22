@@ -5,9 +5,10 @@ var express = require('express'),
     eps     = require('ejs'),
     morgan  = require('morgan'),
     Approxy = require('./src/approxy'),
-    url     = require('url');
-    //cors    = require('cors'),
+    url     = require('url'),
     bodyParser = require('body-parser');
+    //cors    = require('cors'),
+
     
 Object.assign = require('object-assign');
 
@@ -76,10 +77,6 @@ app.post('/init', function(req, res){
 
 app.post('/spin', function(req, res){
     signAllowHeaders(res).end(proxy.getSpinResponse(req.body));
-});
-
-app.get('/test', function (req, res) {
-    signAllowHeaders(res).end(proxy.getInitResponse());
 });
 
 app.get('/', function (req, res) {
