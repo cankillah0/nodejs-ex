@@ -45,7 +45,7 @@ Approxy.prototype.getSpinResponse = function(requestData){
 };
 
 Approxy.prototype.getJointIndexes = function(combination){
-    var probabilities = [50, 40, 30, 20, 10];
+    var probabilities = [20, 15, 10, 8, 7];
     var probability = probabilities[this.frozenCount];
 
     if (this.getRandomInt(0, 100) <= probability){
@@ -66,7 +66,7 @@ Approxy.prototype.getJointIndexes = function(combination){
                 combination[index] = reel;
                 indexes.push(index);
                 if (indexes.length == count){
-                    break;
+                    return indexes;
                 }
             }
         }
