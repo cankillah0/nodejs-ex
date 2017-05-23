@@ -47,7 +47,7 @@ Approxy.prototype.getSpinResponse = function(requestData){
     return dataJson;
 };
 
-AppProxy.prototype.getShowDudesValue = function(){
+Approxy.prototype.getShowDudesValue = function(){
     var pattern = [true, false, false, false, false, true];
     for (var i = 0; i < pattern.length; i++){
         if (pattern[i] != this.frozenReels[i]) return false;
