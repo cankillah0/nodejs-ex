@@ -34,14 +34,25 @@ Approxy.prototype.getSpinResponse = function(requestData){
 
     var freezable = this.getFreezableReels(combination);
 
+    var dudes = this.getShowDudesValue();
+
     var data = {
         "combination" : combination,
         "lines"       : lines,
         "freezable"   : freezable,
-        "joint"       : joint
+        "joint"       : joint,
+        "dudes"       : dudes
     };
     var dataJson = JSON.stringify(data);
     return dataJson;
+};
+
+AppProxy.prototype.getShowDudesValue = function(){
+    var pattern = [true, false, false, false, false, true];
+    for (var i = 0; i < pattern.length; i++){
+        if (pattern[i] != this.frozenReels[i]) return false;
+    }
+    return true;
 };
 
 Approxy.prototype.getJointIndexes = function(combination){
