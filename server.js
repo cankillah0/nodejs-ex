@@ -19,9 +19,22 @@ app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
 //app.use(cors({origin: 'http://iron6client-test-project-cankillah1.1d35.starter-us-east-1.openshiftapps.com'}));
 //app.use(cors({origin: 'http://localhost:63342'}));
-app.use(cors({origin: 'http://localhost:8090'}));
 
 
+var whiteList = [
+    'http://192.168.1.3:8090',
+    'http://localhost:8090',
+    'http://localhost:63342',
+    'http://iron6client-test-project-cankillah1.1d35.starter-us-east-1.openshiftapps.com'
+];
+
+var corsOpts = {
+  origin : function(origin, callback){
+    var allowed = whiteList.indexOf(origin) > -1;
+    callback(null, allowed);
+  }
+}
+app.use(cors(corsOpts));
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
