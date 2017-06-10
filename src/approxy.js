@@ -3,145 +3,57 @@
  */
 function Approxy(){}
 
-Approxy.REELS_COUNT = 6;
-Approxy.REEL_ICONS_COUNT = 3;
-Approxy.ICONS_COUNT = 9;
-Approxy.WILD_ID = 9;
+var uuid = require('uuid/v1');
+var Reels = require('./math/reels');
+var DBProxy = require('./db/dbproxy');
 
-var Lines = require('./lines');
+var reelsMap = Object.create(null);
+var dbproxy = new DBProxy();
 
 Approxy.prototype.getInitResponse = function(){
-    var combination = this.generateCombination(Approxy.WILD_ID - 1);
-    var freezable = this.getFreezableReels(combination, Approxy.WILD_ID);
-    var data = {
-        "combination" : combination,
-        "freezable"   : freezable
-    };
-    var dataJson = JSON.stringify(data);
-    return dataJson;
+    var sessionId = uuid();
+    var reels = new Reels();
+    var response = reels.getInitData();
+        response.sessionId = sessionId;
+    reelsMap[sessionId] = reels;
+
+    dbproxy.saveInitData({
+        "sessionId" : sessionId,
+        "balance"   : response.balance
+    });
+    return response;
 };
 
-Approxy.prototype.getSpinResponse = function(requestData){
-    this.parseRequestData(requestData);
-
-    var combination = this.generateCombination(Approxy.WILD_ID);
-    this.insertFrozenReels(combination);
-
-    var joint = this.getJointIndexes(combination);
-    this.saveCombination(combination);
-
-    var lines = Lines.getWinningLines(combination, Approxy.WILD_ID);
-
-    var freezable = this.getFreezableReels(combination);
-
-    var dudes = this.getShowDudesValue();
-
-    var data = {
-        "combination" : combination,
-        "lines"       : lines,
-        "freezable"   : freezable,
-        "joint"       : joint,
-        "dudes"       : dudes
-    };
-    var dataJson = JSON.stringify(data);
-    return dataJson;
-};
-
-Approxy.prototype.getShowDudesValue = function(){
-    var pattern = [true, false, false, false, false, true];
-    for (var i = 0; i < pattern.length; i++){
-        if (pattern[i] != this.frozenReels[i]) return false;
+Approxy.prototype.getSpinResponse = function(data){
+    var reels = reelsMap[data.sessionId];
+    var response;
+    if (reels){
+        response = reels.getSpinData(data);
+    } else {
+        response = this.getInvalidSessionResponse();
     }
-    return true;
+    dbproxy.saveSpinData({
+        "sessionId"    : data.sessionId,
+        "balance"      : response.balance,
+        "combination"  : response.combination,
+        "lines"        : response.lines,
+        "freezeValue"  : response.freezevalue,
+        "joint"        : response.joint,
+        "frozen"       : response.frozen });
+    return response;
 };
 
-Approxy.prototype.getJointIndexes = function(combination){
-    var probabilities = [20, 15, 10, 8, 7];
-    var probability = probabilities[this.frozenCount];
-
-    if (this.getRandomInt(0, 100) <= probability){
-        var reel = null;
-        for (var i = 0; i < combination.length; i++){
-            if (!this.frozenReels[i] && combination[i].indexOf(Approxy.WILD_ID) < 0){
-                reel = combination[i];
-                break;
-            }
-        }
-        if (!reel) return [];
-        var count = this.getRandomInt(2, 6 - this.frozenCount);
-        var reels = this.shuffleArray([0,1,2,3,4,5]);
-        var indexes = [];
-        for (var i = 0; i < reels.length; i++){
-            var index = reels[i];
-            if (!this.frozenReels[index]){
-                combination[index] = reel;
-                indexes.push(index);
-                if (indexes.length == count){
-                    return indexes;
-                }
-            }
-        }
-        return indexes;
-    }
-    return [];
+Approxy.prototype.getAllData = function(){
+    return dbproxy.getAllData();
 };
 
+Approxy.prototype.getSessionList = function(){
+    return dbproxy.getSessionList();
+}
 
-Approxy.prototype.getFreezableReels = function(combination){
-    var freezable = [true,true,true,true,true,true];
-    for (var i = 0; i < Approxy.REELS_COUNT; i++){
-        if (combination[i].indexOf(Approxy.WILD_ID) >= 0){
-            freezable[i] = false;
-        }
-    }
-    return freezable;
-};
 
-Approxy.prototype.saveCombination = function(combination){
-    this.prevCombination = combination;
-};
-
-Approxy.prototype.parseRequestData = function(requestData){
-    this.frozenReels = requestData.frozen;
-    this.frozenCount = 0;
-    for (var i = 0; i < this.frozenReels.length; i++){
-        if (this.frozenReels[i]) this.frozenCount++;
-    }
-};
-
-Approxy.prototype.generateCombination = function(max){
-    var combination = [];
-    for (var i = 0; i < Approxy.REELS_COUNT; i++){
-        var list = [];
-        for (var j = 0; j < Approxy.REEL_ICONS_COUNT; j++){
-            list.push(this.getRandomInt(0, max))
-        }
-        combination.push(list);
-    }
-    return combination;
-};
-
-Approxy.prototype.insertFrozenReels = function(combination){
-    if (!this.prevCombination) return combination;
-    for (var i = 0; i < combination.length; i++){
-        if (this.frozenReels[i]){
-            combination[i] = this.prevCombination[i];
-        }
-    }
-};
-
-Approxy.prototype.getRandomInt = function(min, max){
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-Approxy.prototype.shuffleArray = function(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-    return array;
+Approxy.prototype.getInvalidSessionResponse = function(){
+    return {"error" : "invalid session id"};
 };
 
 module.exports = Approxy;

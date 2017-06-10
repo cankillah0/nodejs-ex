@@ -4,10 +4,10 @@ var express = require('express'),
     app     = express(),
     eps     = require('ejs'),
     morgan  = require('morgan'),
-    Approxy = require('./src/approxy'),
     url     = require('url'),
     bodyParser = require('body-parser'),
-    cors    = require('cors');
+    cors    = require('cors'),
+    Approxy = require('./src/approxy');
 
     
 Object.assign = require('object-assign');
@@ -17,14 +17,14 @@ app.use(bodyParser.urlencoded({extended : false}));
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
-//app.use(cors({origin: 'http://iron6client-test-project-cankillah1.1d35.starter-us-east-1.openshiftapps.com'}));
-//app.use(cors({origin: 'http://localhost:63342'}));
 
 
 var whiteList = [
     'http://192.168.1.3:8090',
+    'http://192.168.1.2:8090',
     'http://localhost:8090',
     'http://localhost:63342',
+    'http://localhost:4200',
     'http://iron6client-test-project-cankillah1.1d35.starter-us-east-1.openshiftapps.com'
 ];
 
@@ -37,7 +37,7 @@ var corsOpts = {
 app.use(cors(corsOpts));
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
+    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '192.168.1.3',
     mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
 
@@ -60,7 +60,7 @@ if (mongoURL == null && process.env.DATABASE_SERVICE_NAME) {
 
   }
 }
-var db = null,
+/*var db = null,
     dbDetails = new Object();
 
 var initDb = function(callback) {
@@ -82,30 +82,7 @@ var initDb = function(callback) {
 
     console.log('Connected to MongoDB at: %s', mongoURL);
   });
-};
-
-var proxy = new Approxy();
-
-app.post('/init', function(req, res){
-    res.end(proxy.getInitResponse());
-});
-
-app.post('/spin', function(req, res){
-    res.end(proxy.getSpinResponse(req.body));
-});
-
-app.get('/', function (req, res) {
-    res.end("ok");
-});
-
-
-function signAllowHeaders(response){
-    //response.setHeader('Access-Control-Allow-Origin', 'http://localhost:63342');
-    //response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    //response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-type');
-    //response.setHeader('Access-Control-Allow-Credentials', true);
-    return response;
-};
+};*/
 
 app.get('/pagecount', function (req, res) {
   // try to initialize the db on every request if it's not already
@@ -129,11 +106,47 @@ app.use(function(err, req, res, next){
   res.status(500).send('Something bad happened!');
 });
 
-initDb(function(err){
+/*initDb(function(err){
   console.log('Error connecting to Mongo. Message:\n'+err);
-});
+});*/
 
 app.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
 
+
+//-------------------------------------------------------------------//
+
+var proxy = new Approxy();
+
+app.post('/init', function(req, res){
+    var data = proxy.getInitResponse();
+    res.end(JSON.stringify(data));
+});
+
+app.post('/spin', function(req, res){
+    var data = proxy.getSpinResponse(req.body);
+    res.end(JSON.stringify(data));
+});
+
+app.get('/', function (req, res) {
+    res.end("ok");
+});
+
+//-------backoffice services-----//
+
+app.get('/sessions', function(req, res) {
+   var promise = proxy.getSessionList();
+   promise.then(function(result){
+       res.end(JSON.stringify(result));
+   })
+});
+
+app.get('/data', function (req, res) {
+    var promise = proxy.getAllData();
+    promise.then(function(result){
+        res.end(JSON.stringify(result));
+    })
+});
+
 module.exports = app ;
+
